@@ -1,103 +1,105 @@
 <template>
-  <el-form-item
-    v-show="!descriptor.hidden"
-    class="dynamic-form-item"
-    :ref="prop"
-    :label="labelWidth === '0px' ? '' : (label || prop)"
-    :prop="prop"
-    :size="size"
-    :language="language"
-    :rules="descriptor"
-    :required="typeDescriptor.required"
-    :label-width="labelWidth"
-    :show-message="showOuterError || !isComplexType(typeDescriptor.type)">
-    <dynamic-input
-      v-if="!isComplexType(typeDescriptor.type)"
-      v-model="_value"
+  <el-col v-bind="typeDescriptor.col" span="8">
+    <el-form-item
+      v-show="!descriptor.hidden"
+      class="dynamic-form-item"
+      :ref="prop"
+      :label="labelWidth === '0px' ? '' : (label || prop)"
+      :prop="prop"
       :size="size"
-      :descriptor="typeDescriptor">
-    </dynamic-input>
-    <!-- complex type, object or array -->
-    <template v-else>
-      <!-- normal object or hashmap object -->
-      <template v-if="typeDescriptor.type === 'object'">
-        <!-- normal object with known keys -->
-        <div
-          v-if="!typeDescriptor.defaultField"
-          class="sub-dynamic-form"
-          :style="{backgroundColor: subFormBackgroundColor}">
-          <dynamic-form-item
-            v-for="(_descriptor, key) in typeDescriptor.fields"
-            v-model="_value[key]"
-            :key="key"
-            :label="(findTypeDescriptor(_descriptor)).label || key"
-            :prop="prop ? prop + '.' + key : key"
-            :descriptor="_descriptor"
-            :language="language"
-            :label-width="getLabelWidth(typeDescriptor.fields, fontSize)"
-            :background-color="subFormBackgroundColor"
-            :show-outer-error="showOuterError">
-          </dynamic-form-item>
-        </div>
-        <!-- hashmap object -->
-        <div
-          v-else
-          class="sub-dynamic-form hashmap"
-          :style="{backgroundColor: subFormBackgroundColor}">
-          <dynamic-form-item
-            v-for="(temp, key) in _value"
-            v-model="_value[key]"
-            :ref="prop + '.' + key"
-            :key="key"
-            :label="key"
-            :prop="prop ? prop + '.' + key : key"
-            :deletable="true"
-            :descriptor="typeDescriptor.defaultField"
-            :language="language"
-            :label-width="getLabelWidth(_value, fontSize)"
-            :background-color="subFormBackgroundColor"
-            :show-outer-error="showOuterError"
-            @delete="deleteKey(key)">
-          </dynamic-form-item>
-          <el-form-item>
-            <div class="add-key-input-group">
-              <el-input v-model="hashMapKey" :placeholder="language.addKeyPlaceholder" :size="size"></el-input>
-              <el-button type="primary" icon="el-icon-plus" :size="size" :disabled="!hashMapKey || _value[hashMapKey] !== undefined" @click="addHashMapKey" plain>{{ language.addKeyButtonText }}</el-button>
+      :language="language"
+      :rules="descriptor"
+      :required="typeDescriptor.required"
+      :label-width="labelWidth"
+      :show-message="showOuterError || !isComplexType(typeDescriptor.type)">
+        <dynamic-input
+          v-if="!isComplexType(typeDescriptor.type)"
+          v-model="_value"
+          :size="size"
+          :descriptor="typeDescriptor">
+        </dynamic-input>
+        <!-- complex type, object or array -->
+        <template v-else>
+          <!-- normal object or hashmap object -->
+          <template v-if="typeDescriptor.type === 'object'">
+            <!-- normal object with known keys -->
+            <div
+              v-if="!typeDescriptor.defaultField"
+              class="sub-dynamic-form"
+              :style="{backgroundColor: subFormBackgroundColor}">
+              <dynamic-form-item
+                v-for="(_descriptor, key) in typeDescriptor.fields"
+                v-model="_value[key]"
+                :key="key"
+                :label="(findTypeDescriptor(_descriptor)).label || key"
+                :prop="prop ? prop + '.' + key : key"
+                :descriptor="_descriptor"
+                :language="language"
+                :label-width="getLabelWidth(typeDescriptor.fields, fontSize)"
+                :background-color="subFormBackgroundColor"
+                :show-outer-error="showOuterError">
+              </dynamic-form-item>
             </div>
-          </el-form-item>
-        </div>
-      </template>
-      <!-- array -->
-      <template v-else>
-        <div v-if="typeDescriptor.defaultField.type === 'enum' && typeDescriptor.defaultField.multiple" class="multi-select">
-          <dynamic-input
-            v-model="_value"
-            :size="size"
-            :descriptor="typeDescriptor.defaultField">
-          </dynamic-input>
-        </div>
-        <div v-else class="sub-dynamic-form array" :style="{backgroundColor: subFormBackgroundColor}">
-          <dynamic-form-item
-            v-for="(temp, key) in _value"
-            v-model="_value[key]"
-            :key="key"
-            :prop="prop ? prop + '.' + key : key"
-            :deletable="true"
-            :descriptor="typeDescriptor.defaultField"
-            :language="language"
-            label-width="0px"
-            :background-color="subFormBackgroundColor"
-            :show-outer-error="showOuterError"
-            @delete="deleteItem(key)">
-          </dynamic-form-item>
-          <div class="add-key-input-group">
-            <el-button type="primary" icon="el-icon-plus" :size="size" @click="addArrayItem" plain>{{ language.addArrayItemButtonText }}</el-button>
-          </div>
-        </div>
-      </template>
-    </template>
-    <el-button v-if="deletable" class="delete-button" type="text" icon="el-icon-close" @click="emitDelete"></el-button>
-  </el-form-item>
+            <!-- hashmap object -->
+            <div
+              v-else
+              class="sub-dynamic-form hashmap"
+              :style="{backgroundColor: subFormBackgroundColor}">
+              <dynamic-form-item
+                v-for="(temp, key) in _value"
+                v-model="_value[key]"
+                :ref="prop + '.' + key"
+                :key="key"
+                :label="key"
+                :prop="prop ? prop + '.' + key : key"
+                :deletable="true"
+                :descriptor="typeDescriptor.defaultField"
+                :language="language"
+                :label-width="getLabelWidth(_value, fontSize)"
+                :background-color="subFormBackgroundColor"
+                :show-outer-error="showOuterError"
+                @delete="deleteKey(key)">
+              </dynamic-form-item>
+              <el-form-item>
+                <div class="add-key-input-group">
+                  <el-input v-model="hashMapKey" :placeholder="language.addKeyPlaceholder" :size="size"></el-input>
+                  <el-button type="primary" icon="el-icon-plus" :size="size" :disabled="!hashMapKey || _value[hashMapKey] !== undefined" @click="addHashMapKey" plain>{{ language.addKeyButtonText }}</el-button>
+                </div>
+              </el-form-item>
+            </div>
+          </template>
+          <!-- array -->
+          <template v-else>
+            <div v-if="typeDescriptor.defaultField.type === 'enum' && typeDescriptor.defaultField.multiple" class="multi-select">
+              <dynamic-input
+                v-model="_value"
+                :size="size"
+                :descriptor="typeDescriptor.defaultField">
+              </dynamic-input>
+            </div>
+            <div v-else class="sub-dynamic-form array" :style="{backgroundColor: subFormBackgroundColor}">
+              <dynamic-form-item
+                v-for="(temp, key) in _value"
+                v-model="_value[key]"
+                :key="key"
+                :prop="prop ? prop + '.' + key : key"
+                :deletable="true"
+                :descriptor="typeDescriptor.defaultField"
+                :language="language"
+                label-width="0px"
+                :background-color="subFormBackgroundColor"
+                :show-outer-error="showOuterError"
+                @delete="deleteItem(key)">
+              </dynamic-form-item>
+              <div class="add-key-input-group">
+                <el-button type="primary" icon="el-icon-plus" :size="size" @click="addArrayItem" plain>{{ language.addArrayItemButtonText }}</el-button>
+              </div>
+            </div>
+          </template>
+        </template>
+        <el-button v-if="deletable" class="delete-button" type="text" icon="el-icon-close" @click="emitDelete"></el-button>
+    </el-form-item>
+  </el-col>
 </template>
 
 <script>

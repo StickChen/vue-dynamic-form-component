@@ -4,6 +4,8 @@
       v-if="_value"
       ref="dynamic-form"
       :model="_value"
+      v-bind="$attrs"
+      inline="true"
       :rules="descriptors">
       <dynamic-form-item
         v-for="(descriptor, key) in descriptors"
@@ -20,9 +22,11 @@
         :bg-color-offset="bgColorOffset"
         :show-outer-error="showOuterError">
       </dynamic-form-item>
-      <el-form-item v-if="$slots.operations" class="operations" :label-width="labelWidth">
-        <slot name="operations"></slot>
-      </el-form-item>
+      <el-col>
+        <el-form-item v-if="$slots.operations" class="operations" :label-width="labelWidth">
+          <slot name="operations"></slot>
+        </el-form-item>
+      </el-col>
     </el-form>
   </div>
 </template>
@@ -59,7 +63,7 @@ export default {
      */
     size: {
       type: String,
-      default: 'small'
+      default: 'large'
     },
     /**
      * background-color of form

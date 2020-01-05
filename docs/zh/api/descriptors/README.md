@@ -200,3 +200,6 @@ const descriptors = {
 }
 ```
 
+### col
+
+布局属性，对应el-col的属性，用于控制布局
