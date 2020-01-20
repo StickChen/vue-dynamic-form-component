@@ -1,5 +1,5 @@
 export function isComplexType (type) {
-  return ['object', 'array'].includes(type)
+  return ['input-object', 'input-array', 'input-map'].includes(type)
 }
 
 /**
@@ -64,25 +64,23 @@ export function darkenColor (color, offset) {
 }
 
 export function findTypeDescriptor (descriptor) {
-  return descriptor instanceof Array ? descriptor.find(item => !!item.type) : descriptor
+  return descriptor instanceof Array ? descriptor.find(item => !!item.component) : descriptor
 }
 
 export function parseDescriptor (_descriptor) {
   let descriptor = findTypeDescriptor(_descriptor)
-  if (['object', 'array'].includes(descriptor.type)) {
-    if (descriptor.type === 'object') {
+  if (['input-object', 'input-array', 'input-map'].includes(descriptor.component)) {
       // object
-      if (descriptor.fields) {
+      if (descriptor.component === 'input-object') {
         const data = {}
         for (const key in descriptor.fields) {
           data[key] = parseDescriptor(descriptor.fields[key])
         }
         return data
-      } else if (descriptor.defaultField) {
+      } else if (descriptor.component === 'input-map') {
         // object is a hashmap
         return {}
-      }
-    } else {
+      }else {
       // array
       return []
     }

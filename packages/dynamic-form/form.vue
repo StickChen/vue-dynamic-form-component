@@ -4,7 +4,8 @@
       v-if="_value"
       ref="dynamic-form"
       :model="_value"
-      :rules="descriptors">
+      v-bind="$attrs"
+    >
       <dynamic-form-item
         v-for="(descriptor, key) in descriptors"
         v-model="_value[key]"
@@ -28,11 +29,12 @@
 </template>
 
 <script>
-import DynamicFormItem from '../dynamic-form-item/form-item'
-import { isComplexType, getLabelWidth, findTypeDescriptor } from '../utils'
-import i18n from '../i18n'
+  import DynamicFormItem from '../dynamic-form-item/form-item'
+  import {findTypeDescriptor, getLabelWidth, isComplexType} from '../utils'
+  import i18n from '../i18n'
+  import { throttle } from 'throttle-debounce'
 
-export default {
+  export default {
   name: 'dynamic-form',
   props: {
     value: {
@@ -124,6 +126,17 @@ export default {
   created () {
     this.init()
   },
+  watch:{
+    value:{
+      handler (formData) {
+        if (formData) {
+          // 联动属性检测
+          this.checkLinkage()
+        }
+      },
+      deep: true
+    }
+  },
   methods: {
     findTypeDescriptor,
     init () {
@@ -134,23 +147,22 @@ export default {
         this.setValueKey(this, this._value, key, this.descriptors[key])
       }
     },
+    // 初始化value，方便不预输入
     setValueKey (target, value, key, descriptor) {
-      if (isComplexType(descriptor.type)) {
-        if (descriptor.type === 'object') {
-          // object
-          if (descriptor.fields) {
-            // normal object
-            if (value[key] === undefined) {
-              target.$set(value, key, {})
-            }
-            for (const _key in descriptor.fields) {
-              target.setValueKey(target, value[key], _key, descriptor.fields[_key])
-            }
-          } else {
-            // hashmap
-            if (value[key] === undefined) {
-              target.$set(value, key, {})
-            }
+      if (isComplexType(descriptor.component)) {
+        // object
+        if (descriptor.component === 'input-object') {
+          // normal object
+          if (value[key] === undefined) {
+            target.$set(value, key, {})
+          }
+          for (const _key in descriptor.fields) {
+            target.setValueKey(target, value[key], _key, descriptor.fields[_key])
+          }
+        } else if (descriptor.component === 'input-map') {
+          // hashmap
+          if (value[key] === undefined) {
+            target.$set(value, key, {})
           }
         } else {
           // array
@@ -182,7 +194,46 @@ export default {
     },
     clearValidate () {
       this.$refs['dynamic-form'].clearValidate()
-    }
+    },
+    // 检测联动
+    checkLinkage () {
+        this.checkLinkageFn = throttle(300, () => {
+          const formDesc = this.descriptors
+          const formData = this.value
+          Object.keys(formDesc).forEach(field => {
+            const formItem = formDesc[field]
+            // 设置 type
+            let type = formItem.component
+
+            // 触发 onChangeShow 显示 / 隐藏
+            if (typeof formItem.onChangeShow === 'function') {
+              let show = formItem.onChangeShow(formData);
+              this.$set(formItem, 'show', show)
+              if (!show) {
+                // 如果隐藏, 则删除值
+                this.value[field] = null
+              }
+            }
+
+            // 触发 onChangeDisabled 禁用 / 启用
+            if (typeof formItem.onChangeDisabled === 'function') {
+              let disabled = formItem.onChangeDisabled(formData);
+              this.$set(formItem, 'disabled', disabled)
+            }
+
+          })
+        })
+        this.checkLinkageFn()
+    },
+    // 定义联动属性的descriptor
+    defineLinkageProperty (value) {
+      return {
+        enumerable: false,
+        writable: true,
+        configurable: true,
+        value: value
+      }
+    },
   }
 }
 </script>

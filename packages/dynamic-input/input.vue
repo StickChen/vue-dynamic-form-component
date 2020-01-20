@@ -4,12 +4,13 @@
     v-model="_value"
     v-if="!isSpecialType"
     v-bind="_bind"
+    :descriptor="descriptor"
     :is="name"
     :size="size">
   </component>
   <!-- integer, number, float type use el-input with v-model.number -->
   <el-input
-    v-else-if="['integer', 'number', 'float'].includes(descriptor.type)"
+    v-else-if="['input-number'].includes(descriptor.component)"
     class="dynamic-input"
     v-model.number="_value"
     v-bind="_bind"
@@ -17,7 +18,7 @@
   </el-input>
   <!-- enum type use el-select -->
   <el-select
-    v-else-if="descriptor.type === 'enum'"
+    v-else-if="descriptor.component === 'input-select'"
     class="dynamic-input"
     v-model="_value"
     v-bind="_bind"
@@ -28,7 +29,7 @@
   </el-select>
   <!-- date type use el-date-picker -->
   <el-date-picker
-    v-else-if="descriptor.type === 'date'"
+    v-else-if="descriptor.component === 'input-date'"
     class="dynamic-input"
     type="datetime"
     v-model="_value"
@@ -38,15 +39,16 @@
 </template>
 
 <script>
+import InputRadio from "../components/input-radio";
 const TYPE_COMPONENT_MAP = {
-  string: 'el-input',
-  number: 'el-input-number',
-  boolean: 'el-switch',
-  regexp: 'el-input',
-  integer: 'el-input-number',
-  float: 'el-input-number',
-  enum: 'el-select',
-  url: 'el-input'
+  'input-string': 'el-input',
+  'input-number': 'el-input-number',
+  'input-switch': 'el-switch',
+  // regexp: 'el-input',
+  // integer: 'el-input-number',
+  // float: 'el-input-number',
+  'input-select': 'el-select',
+  // url: 'el-input'
 }
 
 export default {
@@ -65,7 +67,7 @@ export default {
       required: true
     }
   },
-  components: {},
+  components: {InputRadio},
   computed: {
     _value: {
       get () {
@@ -103,7 +105,7 @@ export default {
       return Object.assign(data, this.descriptor.props)
     },
     isSpecialType () {
-      return ['integer', 'float', 'number', 'enum', 'date'].includes(this.descriptor.type)
+      return ['input-number', 'input-select', 'input-date'].includes(this.descriptor.component)
     }
   },
   data () {
@@ -116,7 +118,9 @@ export default {
   },
   methods: {
     init () {
-      this.name = TYPE_COMPONENT_MAP[this.descriptor.type] || 'el-input'
+      let component = this.descriptor.component;
+      let wrapperComponent = TYPE_COMPONENT_MAP[component];
+      this.name = !component? 'el-input': wrapperComponent ? wrapperComponent : component;
     }
   }
 }

@@ -2,28 +2,27 @@
   <el-form-item
     v-show="!descriptor.hidden"
     class="dynamic-form-item"
+    v-if="descriptor.component !== 'input-hidden' && (descriptor.show === undefined || descriptor.show)"
     :ref="prop"
     :label="labelWidth === '0px' ? '' : (label || prop)"
     :prop="prop"
     :size="size"
     :language="language"
-    :rules="descriptor"
+    :rules="descriptor.rules"
     :required="typeDescriptor.required"
     :label-width="labelWidth"
-    :show-message="showOuterError || !isComplexType(typeDescriptor.type)">
+    :show-message="showOuterError || !isComplexType(typeDescriptor.component)">
     <dynamic-input
-      v-if="!isComplexType(typeDescriptor.type)"
+      v-if="!isComplexType(typeDescriptor.component)"
       v-model="_value"
       :size="size"
       :descriptor="typeDescriptor">
     </dynamic-input>
     <!-- complex type, object or array -->
-    <template v-else>
+    <template v-else-if="typeDescriptor.component === 'input-object'">
       <!-- normal object or hashmap object -->
-      <template v-if="typeDescriptor.type === 'object'">
         <!-- normal object with known keys -->
         <div
-          v-if="!typeDescriptor.defaultField"
           class="sub-dynamic-form"
           :style="{backgroundColor: subFormBackgroundColor}">
           <dynamic-form-item
@@ -39,9 +38,10 @@
             :show-outer-error="showOuterError">
           </dynamic-form-item>
         </div>
-        <!-- hashmap object -->
-        <div
-          v-else
+    </template>
+    <!-- hashmap object -->
+    <template v-else-if="typeDescriptor.component === 'input-map'">
+      <div
           class="sub-dynamic-form hashmap"
           :style="{backgroundColor: subFormBackgroundColor}">
           <dynamic-form-item
@@ -68,8 +68,9 @@
         </div>
       </template>
       <!-- array -->
-      <template v-else>
-        <div v-if="typeDescriptor.defaultField.type === 'enum' && typeDescriptor.defaultField.multiple" class="multi-select">
+    <template v-else-if="typeDescriptor.component === 'input-array'">
+      <!-- 对于数组下多选直接用select多选替代 -->
+        <div v-if="typeDescriptor.defaultField.component === 'input-select' && typeDescriptor.defaultField.multiple" class="multi-select">
           <dynamic-input
             v-model="_value"
             :size="size"
@@ -95,7 +96,6 @@
           </div>
         </div>
       </template>
-    </template>
     <el-button v-if="deletable" class="delete-button" type="text" icon="el-icon-close" @click="emitDelete"></el-button>
   </el-form-item>
 </template>
