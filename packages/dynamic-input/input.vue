@@ -4,6 +4,7 @@
     v-model="_value"
     v-if="!isSpecialType"
     v-bind="_bind"
+    :disabled="formAttr.disabled"
     :descriptor="descriptor"
     :is="name"
     :size="size">
@@ -14,6 +15,7 @@
     class="dynamic-input"
     v-model.number="_value"
     v-bind="_bind"
+    :disabled="formAttr.disabled"
     :size="size">
   </el-input>
   <!-- enum type use el-select -->
@@ -22,6 +24,7 @@
     class="dynamic-input"
     v-model="_value"
     v-bind="_bind"
+    :disabled="formAttr.disabled"
     :class="{'multi-select': descriptor.multiple}"
     :size="size"
     :multiple="descriptor.multiple">
@@ -34,6 +37,7 @@
     type="datetime"
     v-model="_value"
     v-bind="_bind"
+    :disabled="formAttr.disabled"
     :size="size">
   </el-date-picker>
 </template>
@@ -65,7 +69,8 @@ export default {
     descriptor: {
       type: Object,
       required: true
-    }
+    },
+    formAttr: Object
   },
   components: {InputRadio},
   computed: {

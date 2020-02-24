@@ -4,12 +4,14 @@
       v-if="_value"
       ref="dynamic-form"
       :model="_value"
+      :disabled="false"
       v-bind="$attrs"
     >
       <dynamic-form-item
         v-for="(descriptor, key) in descriptors"
         v-model="_value[key]"
         :key="key"
+        :formAttr="$attrs"
         :lang="lang"
         :label="findTypeDescriptor(descriptor).label || key"
         :prop="key"
@@ -29,12 +31,12 @@
 </template>
 
 <script>
-  import DynamicFormItem from '../dynamic-form-item/form-item'
-  import {findTypeDescriptor, getLabelWidth, isComplexType} from '../utils'
-  import i18n from '../i18n'
-  import { throttle } from 'throttle-debounce'
+import DynamicFormItem from '../dynamic-form-item/form-item'
+import { findTypeDescriptor, getLabelWidth, isComplexType } from '../utils'
+import i18n from '../i18n'
+import { throttle } from 'throttle-debounce'
 
-  export default {
+export default {
   name: 'dynamic-form',
   props: {
     value: {
@@ -126,8 +128,8 @@
   created () {
     this.init()
   },
-  watch:{
-    value:{
+  watch: {
+    value: {
       handler (formData) {
         if (formData) {
           // 联动属性检测
@@ -164,11 +166,13 @@
           if (value[key] === undefined) {
             target.$set(value, key, {})
           }
-        } else {
+        } else if(descriptor.component === 'input-array'){
           // array
           if (value[key] === undefined) {
             target.$set(value, key, [])
           }
+        } else if(descriptor.component === 'GroupingSelect'){
+          target.$set(value, key, {})
         }
       } else {
         if (value[key] === undefined) {
@@ -197,33 +201,30 @@
     },
     // 检测联动
     checkLinkage () {
-        this.checkLinkageFn = throttle(300, () => {
-          const formDesc = this.descriptors
-          const formData = this.value
-          Object.keys(formDesc).forEach(field => {
-            const formItem = formDesc[field]
-            // 设置 type
-            let type = formItem.component
+      this.checkLinkageFn = throttle(300, () => {
+        const formDesc = this.descriptors
+        const formData = this.value
+        Object.keys(formDesc).forEach(field => {
+          const formItem = formDesc[field]
 
-            // 触发 onChangeShow 显示 / 隐藏
-            if (typeof formItem.onChangeShow === 'function') {
-              let show = formItem.onChangeShow(formData);
-              this.$set(formItem, 'show', show)
-              if (!show) {
-                // 如果隐藏, 则删除值
-                this.value[field] = null
-              }
+          // 触发 onChangeShow 显示 / 隐藏
+          if (typeof formItem.onChangeShow === 'function') {
+            let show = formItem.onChangeShow(formData)
+            this.$set(formItem, 'show', show)
+            if (!show) {
+              // 如果隐藏, 则删除值
+              this.value[field] = null
             }
+          }
 
-            // 触发 onChangeDisabled 禁用 / 启用
-            if (typeof formItem.onChangeDisabled === 'function') {
-              let disabled = formItem.onChangeDisabled(formData);
-              this.$set(formItem, 'disabled', disabled)
-            }
-
-          })
+          // 触发 onChangeDisabled 禁用 / 启用
+          if (typeof formItem.onChangeDisabled === 'function') {
+            let disabled = formItem.onChangeDisabled(formData)
+            this.$set(formItem, 'disabled', disabled)
+          }
         })
-        this.checkLinkageFn()
+      })
+      this.checkLinkageFn()
     },
     // 定义联动属性的descriptor
     defineLinkageProperty (value) {

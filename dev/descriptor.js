@@ -80,5 +80,62 @@ export default {
     onChangeDisabled: function (data) {
       return data.select === 2;
     },
+  },
+  module:{
+    label: '模块',
+    component: 'GroupingSelect',
+    props: {
+      selector: {
+        component: 'input-select',
+
+      },
+      subGroupMap: {    //
+        infoShow1: {
+          label: '信息展示',
+          inputs: {
+            template: {
+              component: 'input-string',
+              hidden: true,
+              defaultValue: 'infoShow',
+            },
+            title: {
+              label: '主标题',
+              component: 'input-string',
+            },
+            subTitle: {
+              label: '副标题',
+              component: 'input-string',
+            },
+          },
+        },
+        image1: {
+          label: '导航图',
+          inputs: {
+            template: {
+              component: 'input-string',
+              hidden: true,
+              defaultValue: 'image',
+            },
+            title: {
+              label: '标题',
+              component: 'input-string',
+            },
+            size: {
+              label: '大小',
+              component: 'input-select',
+              options: [
+                {label: '小', value: 'min'},
+                {label: '中', value: 'middle'},
+                {label: '大', value: 'large'},
+              ]
+            },
+            url: {
+              label: '地址',
+              component: 'input-string',
+            }
+          },
+        }
+      }
+    }
   }
 }

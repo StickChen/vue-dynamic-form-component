@@ -5,10 +5,12 @@
       ref="dynamic-form"
       lang="en_US"
       :descriptors="descriptors"
+      :disabled="false"
       :show-outer-error="false">
       <template slot="operations">
         <el-button @click="reset">Reset</el-button>
         <el-button type="primary" @click="validate" plain>Validate</el-button>
+        <el-button @click="submit">Submit</el-button>
       </template>
     </dynamic-form>
   </div>
@@ -46,6 +48,9 @@ export default {
     },
     validate () {
       this.$refs['dynamic-form'].validate()
+    },
+    submit () {
+      alert(JSON.stringify(this.data));
     }
   },
   created () {}

@@ -1,5 +1,5 @@
 export function isComplexType (type) {
-  return ['input-object', 'input-array', 'input-map'].includes(type)
+  return ['input-object', 'input-array', 'input-map', 'GroupingSelect'].includes(type)
 }
 
 /**

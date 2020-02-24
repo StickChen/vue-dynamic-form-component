@@ -14,5 +14,9 @@ module.exports = {
     if (process.env.NODE_ENV === 'production') {
       config.externals = ['vue', 'Vue', 'element-ui', 'ElementUI']
     }
-  }
+  },
+  devServer: {
+    port: 6532,
+    open: false,
+  },
 }

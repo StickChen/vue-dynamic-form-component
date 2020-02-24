@@ -14,21 +14,21 @@
 
 `string` 类型，表示字段类型，包含常见的数据类型
 
-| 值        | 说明                                                         | 对应组件            |
-| --------- | ------------------------------------------------------------ | ------------------- |
-| `string`  | 字符串类型                                                   | `el-input`          |
-| `number`  | `number`类型，自动添加 `.number` 修饰符                      | `el-input`          |
-| `boolean` | 布尔类型                                                     | `el-switch`         |
-| `regexp`  | 正则表达式，必须是可以正确转化为 `RegExp` 实例的字符串       | `el-input`          |
-| `integer` | `number` 类型的整数，自动添加 `.number` 修饰符               | `el-input`          |
-| `float`   | `number` 类型的浮点数，自动添加 `.number` 修饰符             | `el-input`          |
+| 值         | 说明                                                                                    | 对应组件                |
+| --------- | ------------------------------------------------------------------------------------- | ------------------- |
+| `string`  | 字符串类型                                                                                 | `el-input`          |
+| `number`  | `number`类型，自动添加 `.number` 修饰符                                                         | `el-input`          |
+| `boolean` | 布尔类型                                                                                  | `el-switch`         |
+| `regexp`  | 正则表达式，必须是可以正确转化为 `RegExp` 实例的字符串                                                      | `el-input`          |
+| `integer` | `number` 类型的整数，自动添加 `.number` 修饰符                                                     | `el-input`          |
+| `float`   | `number` 类型的浮点数，自动添加 `.number` 修饰符                                                    | `el-input`          |
 | `enum`    | 枚举类型，需要和 [enum, options](/zh/api/descriptors/#enum-options) 属性配合使用，值必须是 `enum` 数组中的一个 | `el-select`         |
-| `date`    | 必须是合法的 `Date` 对象                                     | `el-date-picker`    |
-| `url`     | 符合链接格式的字符串                                         | `el-input`          |
-| `hex`     | 符合哈希格式的字符串                                         | `el-input`          |
-| `email`   | 符合邮件格式的字符串                                         | `el-input`          |
-| `object`  | `object` 类型，配合 `fields` 和  `defaultField` 使用         | `dynamic-form-item` |
-| `array`   | `array` 类型，配合 `defaultField` 使用                       | `dynamic-form-item` |
+| `date`    | 必须是合法的 `Date` 对象                                                                      | `el-date-picker`    |
+| `url`     | 符合链接格式的字符串                                                                            | `el-input`          |
+| `hex`     | 符合哈希格式的字符串                                                                            | `el-input`          |
+| `email`   | 符合邮件格式的字符串                                                                            | `el-input`          |
+| `object`  | `object` 类型，配合 `fields` 和  `defaultField` 使用                                          | `dynamic-form-item` |
+| `array`   | `array` 类型，配合 `defaultField` 使用                                                       | `dynamic-form-item` |
 
 ### label
 
@@ -64,7 +64,7 @@
 
 `array`类型，仅当 `type` 为 `enum` 时有效，用于列举字段值的所有选项，格式：
 
-``` js
+```js
 {
   type: 'enum',
   enum: [0, 1, 2],
@@ -86,7 +86,7 @@
 
 `string` 类型，用于覆盖默认的错误提示信息，一个验证规则对应一条错误提示。
 
-``` js
+```js
 const descriptors = {
   name: [
     { type: 'string', required: true, message: 'username is required' },
@@ -100,7 +100,7 @@ const descriptors = {
 
 `object` 类型，只在 `type  === 'object'` 时有效，当子字段值是不同格式时使用。事实上它就是字段值的 `descriptors`，你可以使用它来获取 **嵌套对象**。
 
-``` js
+```js
 const descriptors = {
   company: {
     type: 'object',
@@ -120,7 +120,7 @@ const descriptors = {
 
 以上 `descriptors` 获取的数据格式为
 
-``` js
+```js
 {
   company: {
     name: String,
@@ -136,7 +136,7 @@ const descriptors = {
 
 `object | array` 类型，优先级高于 `fields`，只在 `type === 'object' | 'array'` 时有效，当子字段值是相同格式时使用。事实上它就是字段值的 `descriptor`，你可以使用它来获取 **Hashmap** 或 **多维数组** 等复杂类型。
 
-``` js
+```js
 const descriptors = {
   dict: {
     type: 'object',
@@ -154,7 +154,7 @@ const descriptors = {
 
 以上 `descriptor` 获取的数据格式为
 
-``` js
+```js
 {
   dict: {
     <key>: String
@@ -170,33 +170,32 @@ const descriptors = {
 `Function` 类型，自定义校验函数，可以通过它来自定义校验规则，格式为：`validator(rule: Object, value, callback: Function)`
 
 * `rule`
-
+  
   当前校验的规则对象
 
 * `value`
-
+  
   对应字段的当前值
 
 * `callback`
-
+  
   校验回调函数，`callback(new Error(<message>))` 时表示校验不通过，`message`为显示的错误提示，`callback()` 表示校验通过
 
-``` js
+```js
 const descriptors = {
   name: [
     { type: 'string', required: true },
     {
       validator: function (rule, value, callback) {
-      	if (value.length < 5) {
-    			return callback(new Error('name should logger than 5'))
-    		}
+          if (value.length < 5) {
+                return callback(new Error('name should logger than 5'))
+            }
         if (value.indexOf('/%$') !== -1) {
           return callback(new Error('name can not include /%$'))
         }
-				return callback()
-    	}
+                return callback()
+        }
     }
   ]
 }
 ```
-

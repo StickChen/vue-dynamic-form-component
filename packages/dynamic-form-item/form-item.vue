@@ -16,6 +16,7 @@
       v-if="!isComplexType(typeDescriptor.component)"
       v-model="_value"
       :size="size"
+      :formAttr="formAttr"
       :descriptor="typeDescriptor">
     </dynamic-input>
     <!-- complex type, object or array -->
@@ -29,6 +30,7 @@
             v-for="(_descriptor, key) in typeDescriptor.fields"
             v-model="_value[key]"
             :key="key"
+            :formAttr="formAttr"
             :label="(findTypeDescriptor(_descriptor)).label || key"
             :prop="prop ? prop + '.' + key : key"
             :descriptor="_descriptor"
@@ -49,6 +51,7 @@
             v-model="_value[key]"
             :ref="prop + '.' + key"
             :key="key"
+            :formAttr="formAttr"
             :label="key"
             :prop="prop ? prop + '.' + key : key"
             :deletable="true"
@@ -74,6 +77,7 @@
           <dynamic-input
             v-model="_value"
             :size="size"
+            :formAttr="formAttr"
             :descriptor="typeDescriptor.defaultField">
           </dynamic-input>
         </div>
@@ -82,6 +86,7 @@
             v-for="(temp, key) in _value"
             v-model="_value[key]"
             :key="key"
+            :formAttr="formAttr"
             :prop="prop ? prop + '.' + key : key"
             :deletable="true"
             :descriptor="typeDescriptor.defaultField"
@@ -96,6 +101,35 @@
           </div>
         </div>
       </template>
+    <!-- GroupingSelect选择组 -->
+    <template v-else-if="typeDescriptor.component === 'GroupingSelect'">
+      <div
+        class="sub-dynamic-form"
+        :style="{backgroundColor: subFormBackgroundColor}">
+        <!-- select -->
+        <el-form-item>
+          <dynamic-input
+            v-model="groupingSelectKey"
+            :size="size"
+            :formAttr="formAttr"
+            :descriptor="groupingSelector">
+          </dynamic-input>
+        </el-form-item>
+        <dynamic-form-item
+          v-for="(_descriptor, key) in subGroupingSelectForm"
+          v-model="_value[key]"
+          :key="key"
+          :formAttr="formAttr"
+          :label="(findTypeDescriptor(_descriptor)).label || key"
+          :prop="prop ? prop + '.' + key : key"
+          :descriptor="_descriptor"
+          :language="language"
+          :label-width="getLabelWidth(subGroupingSelectForm, fontSize)"
+          :background-color="subFormBackgroundColor"
+          :show-outer-error="showOuterError">
+        </dynamic-form-item>
+      </div>
+    </template>
     <el-button v-if="deletable" class="delete-button" type="text" icon="el-icon-close" @click="emitDelete"></el-button>
   </el-form-item>
 </template>
@@ -110,6 +144,9 @@ export default {
     value: {
       required: true
     },
+    /**
+     * 表单的name
+     */
     prop: {
       type: String,
       default: ''
@@ -162,7 +199,8 @@ export default {
       default: false
     },
     labelWidth: String,
-    language: Object
+    language: Object,
+    formAttr: Object
   },
   components: {
     DynamicInput
@@ -181,11 +219,29 @@ export default {
     },
     subFormBackgroundColor () {
       return this.bgColorOffset ? darkenColor(this.backgroundColor, this.bgColorOffset) : 'none'
+    },
+    groupingSelector () {
+      let subGroupMap = this.descriptor.props.subGroupMap
+      let options = []
+      Object.keys(subGroupMap).forEach(function (key) {
+        options.push({ 'label': subGroupMap[key].label, 'value': key })
+      })
+      let selector = this.descriptor.props.selector;
+      selector.options = options;
+      selector.component = 'input-select';
+      return selector;
+    },
+    subGroupingSelectForm () {
+      if (!this.groupingSelectKey) {
+        return null;
+      }
+      return this.typeDescriptor.props.subGroupMap[this.groupingSelectKey].inputs;
     }
   },
   data () {
     return {
-      hashMapKey: ''
+      hashMapKey: '',
+      groupingSelectKey: null
     }
   },
   watch: {
