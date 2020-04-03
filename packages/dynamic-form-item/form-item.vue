@@ -27,12 +27,12 @@
           class="sub-dynamic-form"
           :style="{backgroundColor: subFormBackgroundColor}">
           <dynamic-form-item
-            v-for="(_descriptor, key) in typeDescriptor.fields"
-            v-model="_value[key]"
-            :key="key"
+            v-for="(_descriptor, index) in typeDescriptor.fields"
+            v-model="_value[_descriptor.prop]"
+            :key="index"
             :formAttr="formAttr"
-            :label="(findTypeDescriptor(_descriptor)).label || key"
-            :prop="prop ? prop + '.' + key : key"
+            :label="(findTypeDescriptor(_descriptor)).label || _descriptor.prop"
+            :prop="prop ? prop + '.' + _descriptor.prop : _descriptor.prop"
             :descriptor="_descriptor"
             :language="language"
             :label-width="getLabelWidth(typeDescriptor.fields, fontSize)"

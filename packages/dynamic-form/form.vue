@@ -8,13 +8,13 @@
       v-bind="$attrs"
     >
       <dynamic-form-item
-        v-for="(descriptor, key) in descriptors"
-        v-model="_value[key]"
-        :key="key"
+        v-for="(descriptor, index) in descriptors"
+        v-model="_value[descriptor.prop]"
+        :key="index"
         :formAttr="$attrs"
         :lang="lang"
-        :label="findTypeDescriptor(descriptor).label || key"
-        :prop="key"
+        :label="descriptor.label || descriptor.prop"
+        :prop="descriptor.prop"
         :label-width="labelWidth"
         :descriptor="descriptor"
         :language="language"
@@ -55,7 +55,7 @@ export default {
      * descriptor of value, extend from https://github.com/yiminghe/async-validator
      */
     descriptors: {
-      type: Object,
+      type: Array,
       required: true
     },
     /**
@@ -145,8 +145,8 @@ export default {
       this.initValue()
     },
     initValue () {
-      for (const key in this.descriptors) {
-        this.setValueKey(this, this._value, key, this.descriptors[key])
+      for (const i in this.descriptors) {
+        this.setValueKey(this, this._value, this.descriptors[i].prop, this.descriptors[i])
       }
     },
     // 初始化value，方便不预输入
@@ -158,8 +158,8 @@ export default {
           if (value[key] === undefined) {
             target.$set(value, key, {})
           }
-          for (const _key in descriptor.fields) {
-            target.setValueKey(target, value[key], _key, descriptor.fields[_key])
+          for (const _index in descriptor.fields) {
+            target.setValueKey(target, value[key], descriptor.fields[_index].prop, descriptor.fields[_index])
           }
         } else if (descriptor.component === 'input-map') {
           // hashmap

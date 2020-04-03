@@ -7,6 +7,9 @@ export function isComplexType (type) {
  * @param {String} str
  */
 export function getStringLength (str) {
+  if (!str) {
+    return 4;
+  }
   let len = 0
   for (let i = 0; i < str.length; i++) {
     str.charCodeAt(i) > 255 ? len += 2 : len++
@@ -21,8 +24,11 @@ export function getStringLength (str) {
 export function getLabelWidth (descriptors, fontSize) {
   let maxLen = 0
   if (descriptors instanceof Array) {
-    maxLen = getStringLength('Item ' + descriptors.length)
-  } else {
+    for (const i in descriptors) {
+      const typeDescriptor = findTypeDescriptor(descriptors[i])
+      maxLen = Math.max(maxLen, getStringLength(typeDescriptor.label || descriptors[i].prop))
+    }
+  }else {
     for (const key in descriptors) {
       if (descriptors[key]) {
         const typeDescriptor = findTypeDescriptor(descriptors[key])
@@ -73,8 +79,8 @@ export function parseDescriptor (_descriptor) {
       // object
       if (descriptor.component === 'input-object') {
         const data = {}
-        for (const key in descriptor.fields) {
-          data[key] = parseDescriptor(descriptor.fields[key])
+        for (const index in descriptor.fields) {
+          data[descriptor.fields[index].prop] = parseDescriptor(descriptor.fields[index])
         }
         return data
       } else if (descriptor.component === 'input-map') {
