@@ -109,19 +109,21 @@
         <!-- select -->
         <el-form-item>
           <dynamic-input
-            v-model="groupingSelectKey"
+            v-model="_value[groupingSelector.prop]"
             :size="size"
             :formAttr="formAttr"
-            :descriptor="groupingSelector">
+            :descriptor="groupingSelector"
+            @change="groupingSelectChange"
+          >
           </dynamic-input>
         </el-form-item>
         <dynamic-form-item
-          v-for="(_descriptor, key) in subGroupingSelectForm"
-          v-model="_value[key]"
-          :key="key"
+          v-for="(_descriptor, index) in subGroupingSelectForm"
+          v-model="_value[_descriptor.prop]"
+          :key="index"
           :formAttr="formAttr"
-          :label="(findTypeDescriptor(_descriptor)).label || key"
-          :prop="prop ? prop + '.' + key : key"
+          :label="(findTypeDescriptor(_descriptor)).label || _descriptor.prop"
+          :prop="prop ? prop + '.' + _descriptor.prop : _descriptor.prop"
           :descriptor="_descriptor"
           :language="language"
           :label-width="getLabelWidth(subGroupingSelectForm, fontSize)"
@@ -135,7 +137,7 @@
 </template>
 
 <script>
-import { isComplexType, getLabelWidth, darkenColor, parseDescriptor, findTypeDescriptor } from '../utils'
+  import {isComplexType, getLabelWidth, darkenColor, parseDescriptor, findTypeDescriptor, getSubGroup} from '../utils'
 import DynamicInput from '../dynamic-input/input'
 
 export default {
@@ -221,21 +223,21 @@ export default {
       return this.bgColorOffset ? darkenColor(this.backgroundColor, this.bgColorOffset) : 'none'
     },
     groupingSelector () {
-      let subGroupMap = this.descriptor.props.subGroupMap
+      let subGroupMap = this.descriptor.props.subGroups;
       let options = []
-      Object.keys(subGroupMap).forEach(function (key) {
-        options.push({ 'label': subGroupMap[key].label, 'value': key })
-      })
+      for (const subGroup of subGroupMap) {
+        options.push({ 'label': subGroup.label, 'value': subGroup.value })
+      }
       let selector = this.descriptor.props.selector;
       selector.options = options;
       selector.component = 'input-select';
       return selector;
     },
     subGroupingSelectForm () {
-      if (!this.groupingSelectKey) {
+      if (!this._value[this.groupingSelector.prop]) {
         return null;
       }
-      return this.typeDescriptor.props.subGroupMap[this.groupingSelectKey].inputs;
+      return getSubGroup(this.typeDescriptor.props.subGroups, this._value[this.groupingSelector.prop]).inputs;
     }
   },
   data () {
@@ -279,6 +281,12 @@ export default {
     },
     deleteItem (index) {
       this._value.splice(index, 1)
+    },
+    groupingSelectChange(value) {
+      // 清空之前的值
+      this._value = {
+        [this.groupingSelector.prop]: value,
+      }
     }
   }
 }

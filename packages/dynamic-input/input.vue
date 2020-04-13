@@ -4,7 +4,7 @@
     v-model="_value"
     v-if="!isSpecialType"
     v-bind="_bind"
-    :disabled="formAttr.disabled"
+    :disabled="formAttr.disabled || _bind.disabled"
     :descriptor="descriptor"
     :is="name"
     :size="size">
@@ -15,7 +15,7 @@
     class="dynamic-input"
     v-model.number="_value"
     v-bind="_bind"
-    :disabled="formAttr.disabled"
+    :disabled="formAttr.disabled || _bind.disabled"
     :size="size">
   </el-input>
   <!-- enum type use el-select -->
@@ -24,10 +24,12 @@
     class="dynamic-input"
     v-model="_value"
     v-bind="_bind"
-    :disabled="formAttr.disabled"
+    :disabled="formAttr.disabled || _bind.disabled"
     :class="{'multi-select': descriptor.multiple}"
     :size="size"
-    :multiple="descriptor.multiple">
+    :multiple="descriptor.multiple"
+    @change="$emit('change', $event)"
+  >
     <el-option v-for="option in _options" :key="option.label" :value="option.value" :label="option.label" :disabled="option.disabled"></el-option>
   </el-select>
   <!-- date type use el-date-picker -->
@@ -37,7 +39,7 @@
     type="datetime"
     v-model="_value"
     v-bind="_bind"
-    :disabled="formAttr.disabled"
+    :disabled="formAttr.disabled || _bind.disabled"
     :size="size">
   </el-date-picker>
 </template>
@@ -47,11 +49,11 @@ import InputRadio from "../components/input-radio";
 const TYPE_COMPONENT_MAP = {
   'input-string': 'el-input',
   'input-number': 'el-input-number',
-  'input-switch': 'el-switch',
+  // 'input-switch': 'el-switch',
   // regexp: 'el-input',
   // integer: 'el-input-number',
   // float: 'el-input-number',
-  'input-select': 'el-select',
+  // 'input-select': 'el-select',
   // url: 'el-input'
 }
 
@@ -102,7 +104,7 @@ export default {
        * Compatible with the version <= 2.2.0
        * These props is the first level prop of descriptor in old version
        */
-      ['disabled', 'placeholder', 'autocomplete'].forEach(key => {
+      ['disabled', 'placeholder', 'autocomplete', 'required'].forEach(key => {
         if (typeof this.descriptor[key] !== 'undefined') {
           data[key] = this.descriptor[key]
         }
@@ -125,8 +127,11 @@ export default {
     init () {
       let component = this.descriptor.component;
       let wrapperComponent = TYPE_COMPONENT_MAP[component];
+      if (!wrapperComponent && component) {
+        wrapperComponent = 'el-' + component.replace('input-', '');
+      }
       this.name = !component? 'el-input': wrapperComponent ? wrapperComponent : component;
-    }
+    },
   }
 }
 </script>

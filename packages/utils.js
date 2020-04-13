@@ -94,3 +94,12 @@ export function parseDescriptor (_descriptor) {
     return null
   }
 }
+
+export function getSubGroup(subGroups, value){
+  for (const e of subGroups) {
+    if (e.value === value) {
+      return e;
+    }
+  }
+  return {};
+}
