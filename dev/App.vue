@@ -6,7 +6,9 @@
       lang="en_US"
       :descriptors="descriptors"
       :disabled="false"
-      :show-outer-error="false">
+      :show-outer-error="false"
+      :inline="true"
+    >
       <template slot="operations">
         <el-button @click="reset">Reset</el-button>
         <el-button type="primary" @click="validate" plain>Validate</el-button>

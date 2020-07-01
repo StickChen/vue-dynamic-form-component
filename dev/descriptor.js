@@ -1,9 +1,11 @@
 const array = [
+  {component: 'input-caption', props: {h2: '详细信息'}},
   {
     prop: 'array',
     component: 'input-array',
     label: 'array label',
     defaultField: {
+      label: 'array item',
       component: 'input-object',
       fields: [
         { prop: 'string', component: 'input-string', required: true },
@@ -16,6 +18,8 @@ const array = [
       ]
     }
   },
+  {prop: 'string8', },
+  {prop: 'string9',},
   {
     prop:'object',
     component: 'input-object',
@@ -48,12 +52,14 @@ const array = [
     component: 'input-radio',
     multiple: false,
     label: '操作',
-    enum: [0, 1, 2],
-    options: [
-      { label: '同意', value: 0 },
-      { label: '驳回', value: 1 },
-      { label: '待定', value: 2 },
-    ]
+    props:{
+      enum: [0, 1, 2],
+      options: [
+        { label: '同意', value: 0 },
+        { label: '驳回', value: 1 },
+        { label: '待定', value: 2 },
+      ],
+    }
   },
   {
     prop: 'optDesc',
@@ -116,11 +122,13 @@ const array = [
               label: '大小',
               prop: 'size',
               component: 'input-select',
-              options: [
-                {label: '小', value: 'min'},
-                {label: '中', value: 'middle'},
-                {label: '大', value: 'large'},
-              ]
+              props:{
+                options: [
+                  {label: '小', value: 'min'},
+                  {label: '中', value: 'middle'},
+                  {label: '大', value: 'large'},
+                ]
+              }
             },
             {
               prop: 'address',
@@ -138,26 +146,23 @@ const complex = [
 ]
 
 export default [
-  {
-    prop: 'string',
-    component: 'input-string',
-    required: true,
-    placeholder: 'textarea placeholder',
-    col: {
-      span: 8
-    },
-    props: { autocomplete: 'on', },
-    rules: {},
-  },
+  {component: 'input-caption', props: {h2: '基本信息'}},
+  {prop: 'string1',},
+  {prop: 'string2',},
+  {prop: 'string3',},
+  {prop: 'string4',},
+  {prop: 'string5',},
+  {prop: 'string6',},
+  {prop: 'string7',},
+  {component: 'input-caption', },
   {
     prop: 'textarea',
     component: 'input-string',
-    required: true,
     placeholder: 'textarea placeholder',
     col: {
       span: 8
     },
-    props: { autocomplete: 'on', type: 'textarea', rows: 4 },
+    props: { autocomplete: 'on', type: 'textarea', rows: 4, style: {width: '200px'}  },
     rules: {},
   },
   { prop: 'url', rules: { type: 'url', message: 'The url must be an url' } },

@@ -6,6 +6,7 @@
       :model="_value"
       :disabled="false"
       v-bind="$attrs"
+      :inline="inline"
     >
       <dynamic-form-item
         v-for="(descriptor, index) in descriptors"
@@ -23,9 +24,11 @@
         :bg-color-offset="bgColorOffset"
         :show-outer-error="showOuterError">
       </dynamic-form-item>
-      <el-form-item v-if="$slots.operations" class="operations" :label-width="labelWidth">
-        <slot name="operations"></slot>
-      </el-form-item>
+      <div>
+        <el-form-item v-if="$slots.operations" class="operations" :label-width="labelWidth">
+          <slot name="operations"></slot>
+        </el-form-item>
+      </div>
     </el-form>
   </div>
 </template>
@@ -92,6 +95,15 @@ export default {
     bgColorOffset: {
       type: Number,
       default: 8
+    },
+    labelWidth: {
+      type: String,
+      default: '128px',
+      required: false
+    },
+    inline:{
+      type: Boolean,
+      default: true,
     }
   },
   components: {
@@ -106,9 +118,9 @@ export default {
         this.$emit('input', value)
       }
     },
-    labelWidth () {
-      return getLabelWidth(this.descriptors, this.fontSize)
-    },
+    // labelWidth () {
+    //   return getLabelWidth(this.descriptors, this.fontSize)
+    // },
     style () {
       const style = {
         fontSize: `${this.fontSize}px`,
@@ -118,7 +130,7 @@ export default {
     },
     language () {
       return (this.languages || i18n)[this.lang]
-    }
+    },
   },
   data () {
     return {

@@ -16,12 +16,8 @@ features:
 footer: MIT Licensed | Copyright © QuincyChen
 ---
 
-
-
 ### 示例
 
 <code-demo name="home-demo" :collapse="false" lang="zh_CN"></code-demo>
 
 <<< @/docs/.vuepress/components/home-demo.vue
-
-

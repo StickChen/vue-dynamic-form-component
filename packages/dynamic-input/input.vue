@@ -7,7 +7,8 @@
     :disabled="formAttr.disabled || _bind.disabled"
     :descriptor="descriptor"
     :is="name"
-    :size="size">
+    :size="size"
+  >
   </component>
   <!-- integer, number, float type use el-input with v-model.number -->
   <el-input
@@ -45,15 +46,15 @@
 </template>
 
 <script>
-import InputRadio from "../components/input-radio";
+
 const TYPE_COMPONENT_MAP = {
   'input-string': 'el-input',
   'input-number': 'el-input-number',
-  // 'input-switch': 'el-switch',
+  'input-switch': 'el-switch',
+  'input-select': 'el-select',
   // regexp: 'el-input',
   // integer: 'el-input-number',
   // float: 'el-input-number',
-  // 'input-select': 'el-select',
   // url: 'el-input'
 }
 
@@ -74,7 +75,7 @@ export default {
     },
     formAttr: Object
   },
-  components: {InputRadio},
+  components: {},
   computed: {
     _value: {
       get () {
@@ -85,8 +86,8 @@ export default {
       }
     },
     _options () {
-      if (this.descriptor.enum || this.descriptor.options) {
-        const data = this.descriptor.options instanceof Array ? this.descriptor.options : this.descriptor.enum
+      if (this.descriptor.props && (this.descriptor.props.enum || this.descriptor.props.options)) {
+        const data = this.descriptor.props.options instanceof Array ? this.descriptor.props.options : this.descriptor.props.enum
         return data.map(item => {
           if (typeof item === 'object') {
             return item
@@ -109,7 +110,10 @@ export default {
           data[key] = this.descriptor[key]
         }
       })
-      return Object.assign(data, this.descriptor.props)
+      data = Object.assign(data, this.descriptor.props);
+      let style = data.style || {};
+      data.style = Object.assign(style, {width: '200px'});
+      return data;
     },
     isSpecialType () {
       return ['input-number', 'input-select', 'input-date'].includes(this.descriptor.component)
@@ -127,9 +131,6 @@ export default {
     init () {
       let component = this.descriptor.component;
       let wrapperComponent = TYPE_COMPONENT_MAP[component];
-      if (!wrapperComponent && component) {
-        wrapperComponent = 'el-' + component.replace('input-', '');
-      }
       this.name = !component? 'el-input': wrapperComponent ? wrapperComponent : component;
     },
   }

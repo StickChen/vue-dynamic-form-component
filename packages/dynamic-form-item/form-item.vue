@@ -2,7 +2,7 @@
   <el-form-item
     v-show="!descriptor.hidden"
     class="dynamic-form-item"
-    v-if="descriptor.component !== 'input-hidden' && (descriptor.show === undefined || descriptor.show)"
+    v-if="_vif"
     :ref="prop"
     :label="labelWidth === '0px' ? '' : (label || prop)"
     :prop="prop"
@@ -35,7 +35,7 @@
             :prop="prop ? prop + '.' + _descriptor.prop : _descriptor.prop"
             :descriptor="_descriptor"
             :language="language"
-            :label-width="getLabelWidth(typeDescriptor.fields, fontSize)"
+            :label-width="labelWidth"
             :background-color="subFormBackgroundColor"
             :show-outer-error="showOuterError">
           </dynamic-form-item>
@@ -57,17 +57,17 @@
             :deletable="true"
             :descriptor="typeDescriptor.defaultField"
             :language="language"
-            :label-width="getLabelWidth(_value, fontSize)"
+            :label-width="labelWidth"
             :background-color="subFormBackgroundColor"
             :show-outer-error="showOuterError"
             @delete="deleteKey(key)">
           </dynamic-form-item>
-          <el-form-item>
-            <div class="add-key-input-group">
+          <div class="add-key-input-group">
+            <el-form-item>
               <el-input v-model="hashMapKey" :placeholder="language.addKeyPlaceholder" :size="size"></el-input>
               <el-button type="primary" icon="el-icon-plus" :size="size" :disabled="!hashMapKey || _value[hashMapKey] !== undefined" @click="addHashMapKey" plain>{{ language.addKeyButtonText }}</el-button>
-            </div>
-          </el-form-item>
+            </el-form-item>
+          </div>
         </div>
       </template>
       <!-- array -->
@@ -91,7 +91,8 @@
             :deletable="true"
             :descriptor="typeDescriptor.defaultField"
             :language="language"
-            label-width="0px"
+            :label="key+1"
+            :label-width="labelWidth"
             :background-color="subFormBackgroundColor"
             :show-outer-error="showOuterError"
             @delete="deleteItem(key)">
@@ -126,7 +127,7 @@
           :prop="prop ? prop + '.' + _descriptor.prop : _descriptor.prop"
           :descriptor="_descriptor"
           :language="language"
-          :label-width="getLabelWidth(subGroupingSelectForm, fontSize)"
+          :label-width="labelWidth"
           :background-color="subFormBackgroundColor"
           :show-outer-error="showOuterError">
         </dynamic-form-item>
@@ -134,6 +135,15 @@
     </template>
     <el-button v-if="deletable" class="delete-button" type="text" icon="el-icon-close" @click="emitDelete"></el-button>
   </el-form-item>
+  <div v-else-if="!_formItem">
+    <dynamic-input
+      v-if="!isComplexType(typeDescriptor.component)"
+      v-model="_value"
+      :size="size"
+      :formAttr="formAttr"
+      :descriptor="typeDescriptor">
+    </dynamic-input>
+  </div>
 </template>
 
 <script>
@@ -216,6 +226,12 @@ export default {
         this.$emit('input', value)
       }
     },
+    _vif() {
+      return this._formItem && (this.descriptor.show === undefined || this.descriptor.show);
+    },
+    _formItem() {
+      return this.descriptor.props === undefined || (this.descriptor.props.formItem === undefined || this.descriptor.props.formItem);
+    },
     typeDescriptor () {
       return findTypeDescriptor(this.descriptor)
     },
@@ -229,7 +245,8 @@ export default {
         options.push({ 'label': subGroup.label, 'value': subGroup.value })
       }
       let selector = this.descriptor.props.selector;
-      selector.options = options;
+      selector.props = selector.props ? selector.props : {};
+      selector.props.options = options;
       selector.component = 'input-select';
       return selector;
     },
@@ -296,6 +313,7 @@ export default {
 .sub-dynamic-form {
   border-radius: 5px;
   padding: 10px;
+  padding-right: 40px;
   .el-form-item:last-child {
     margin-bottom: 0;
   }
